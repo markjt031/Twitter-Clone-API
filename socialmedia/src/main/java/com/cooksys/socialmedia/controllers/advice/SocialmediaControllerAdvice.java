@@ -3,7 +3,7 @@ package com.cooksys.socialmedia.controllers.advice;
 import com.cooksys.socialmedia.exceptions.BadRequestException;
 import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
-import com.cooksys.socialmedia.model.ErrorDto;
+import com.cooksys.socialmedia.dtos.ErrorDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;

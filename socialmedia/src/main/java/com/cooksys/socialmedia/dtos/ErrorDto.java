@@ -1,4 +1,4 @@
-package com.cooksys.socialmedia.model;
+package com.cooksys.socialmedia.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
