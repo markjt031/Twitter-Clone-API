@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,9 +27,7 @@ public class Hashtag {
 
 	private String label;
 
-	@Basic(optional = false)
-	@Column(insertable = false, updatable = false)
-	@Temporal(TemporalType.TIMESTAMP)
+	@CreationTimestamp
 	private Date firstUsed;
 
 	@Basic(optional = false)

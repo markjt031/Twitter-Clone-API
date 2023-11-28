@@ -2,14 +2,16 @@ package com.cooksys.socialmedia.entities;
 
 import java.util.Date;
 
-import javax.persistence.Basic;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,20 +26,18 @@ public class User {
 	@GeneratedValue
 	private Long id;
 
-	private String username;
+	@Embedded
+	@AttributeOverrides({ @AttributeOverride(name = "username", column = @Column(nullable = false, unique = true)),
+			@AttributeOverride(name = "password", column = @Column(nullable = false)) })
+	private Credential credential;
 
-	private String password;
-
-	@Basic(optional = false)
-	@Column(insertable = false, updatable = false)
-	@Temporal(TemporalType.TIMESTAMP)
+	@CreationTimestamp
 	private Date joined;
 
-	private String firstName;
-
-	private String lastName;
-
-	private String email;
-
-	private String phone;
+	@Embedded
+	@AttributeOverrides({ @AttributeOverride(name = "firstName", column = @Column(nullable = false)),
+			@AttributeOverride(name = "lastName", column = @Column(nullable = false)),
+			@AttributeOverride(name = "email", column = @Column(nullable = false)),
+			@AttributeOverride(name = "phone", column = @Column(nullable = false)) })
+	private Profile profile;
 }
