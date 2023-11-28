@@ -33,6 +33,8 @@ public class User {
 	@GeneratedValue
 	private Long id;
 
+	//embedding the credential embeddable from Credential.java
+	
 	@Embedded
 	@AttributeOverrides({ @AttributeOverride(name = "username", column = @Column(nullable = false, unique = true)),
 			@AttributeOverride(name = "password", column = @Column(nullable = false)) })
@@ -41,6 +43,8 @@ public class User {
 	@CreationTimestamp
 	private Date joined;
 
+	//embedding the Profile from Profile.java
+	
 	@Embedded
 	@AttributeOverrides({ @AttributeOverride(name = "firstName", column = @Column(nullable = false)),
 			@AttributeOverride(name = "lastName", column = @Column(nullable = false)),
@@ -48,22 +52,32 @@ public class User {
 			@AttributeOverride(name = "phone", column = @Column(nullable = false)) })
 	private Profile profile;
 
+	
+	//all the many to many relations are declared below
+	
+	
+	//Creates the follower relation table and makes a list of users who are being followed by this.user
 	@ManyToMany
 	@JoinTable(name = "following_table", joinColumns = { @JoinColumn(name = "follower_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "following_id") })
 	private List<User> following = new ArrayList<>();
 
+	//creates a list of users who are the followers of this.user
 	@ManyToMany(mappedBy = "following", fetch = FetchType.EAGER)
 	private List<User> followers = new ArrayList<>();
 
+	//Creates a list of tweets by this user
 	@OneToMany(mappedBy = "author")
 	private List<Tweet> tweets = new ArrayList<>();
 
+	
+	//Creates the user_likes relational tables and creates a List of tweets this user likes
 	@ManyToMany
 	@JoinTable(name = "user_likes", joinColumns = { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "user_id") })
 	private List<Tweet> userLikes = new ArrayList<>();
 	
+	//Creates the user_mention relational table and creates a list of tweets where the user is mentioned
 	@ManyToMany
 	@JoinTable(name="user_mentions",joinColumns= { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "user_id") })
