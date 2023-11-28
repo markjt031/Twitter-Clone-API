@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -55,4 +56,16 @@ public class User {
 	@ManyToMany(mappedBy = "following", fetch = FetchType.EAGER)
 	private List<User> followers = new ArrayList<>();
 
+	@OneToMany(mappedBy = "author")
+	private List<Tweet> tweets = new ArrayList<>();
+
+	@ManyToMany
+	@JoinTable(name = "user_likes", joinColumns = { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "user_id") })
+	private List<Tweet> userLikes = new ArrayList<>();
+	
+	@ManyToMany
+	@JoinTable(name="user_mentions",joinColumns= { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "user_id") })
+	private List<Tweet> userMentions = new ArrayList<>();
 }
