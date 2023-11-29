@@ -81,4 +81,8 @@ public class User {
 	//Creates the user_mention relational table and creates a list of tweets where the user is mentioned
 	@ManyToMany(mappedBy ="mentions")
 	private List<Tweet> userMentions = new ArrayList<>();
+	
+	public String getUsername() {
+		return credential.getUsername();
+	}
 }
