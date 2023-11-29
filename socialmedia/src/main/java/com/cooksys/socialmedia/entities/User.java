@@ -43,6 +43,7 @@ public class User {
 	@CreationTimestamp
 	private Date joined;
 
+	private boolean deleted;
 	//embedding the Profile from Profile.java
 	
 	@Embedded
@@ -78,8 +79,6 @@ public class User {
 	private List<Tweet> userLikes = new ArrayList<>();
 	
 	//Creates the user_mention relational table and creates a list of tweets where the user is mentioned
-	@ManyToMany
-	@JoinTable(name="user_mentions",joinColumns= { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
-			@JoinColumn(name = "user_id") })
+	@ManyToMany(mappedBy ="mentions")
 	private List<Tweet> userMentions = new ArrayList<>();
 }
