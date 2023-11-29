@@ -58,7 +58,7 @@ public class Tweet {
 	private List<Tweet> reposts = new ArrayList<>();
 
 	//creates the join table where tweets and hashtags are linked, this creates a list of hashtags that are on this.tweet
-	@ManyToMany(cascade = { CascadeType.ALL })
+	@ManyToMany
 	@JoinTable(name = "tweet_hashtag", joinColumns = { @JoinColumn(name = "hashtag_ig") }, inverseJoinColumns = {
 			@JoinColumn(name = "tweet_id") })
 	private List<Hashtag> hashtags = new ArrayList<>();
@@ -69,6 +69,8 @@ public class Tweet {
 	@ManyToMany(mappedBy="userLikes")
 	private List<User> likes = new ArrayList<>();
 	
-	@ManyToMany(mappedBy="userMentions")
+	@ManyToMany
+	@JoinTable(name="user_mentions",joinColumns= { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "user_id") })
 	private List<User> mentions = new ArrayList<>();
 }
