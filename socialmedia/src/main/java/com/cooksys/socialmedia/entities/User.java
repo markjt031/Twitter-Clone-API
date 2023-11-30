@@ -38,7 +38,7 @@ public class User {
 	@Embedded
 	@AttributeOverrides({ @AttributeOverride(name = "username", column = @Column(nullable = false, unique = true)),
 			@AttributeOverride(name = "password", column = @Column(nullable = false)) })
-	private Credential credential;
+	private Credentials credentials;
 
 	@CreationTimestamp
 	private Date joined;
