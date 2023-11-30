@@ -29,10 +29,6 @@ public class HashtagServiceImpl implements HashtagService {
     return "#" + label;
   }
 
-  private boolean hashtagExists(String label) {
-    return hashtagRepository.findByLabel(prependHashtag(label)) != null;
-  }
-
   @Override
   public List<TweetResponseDto> getTweetsByHashtagLabel(String label) {
     if (!hashtagExists(label)) {
@@ -40,5 +36,10 @@ public class HashtagServiceImpl implements HashtagService {
     }
 
     return tweetService.getAllTweetsByLabelNotDeleted(label);
+  }
+
+  @Override
+  public boolean hashtagExists(String label) {
+    return hashtagRepository.findByLabel(prependHashtag(label)) != null;
   }
 }

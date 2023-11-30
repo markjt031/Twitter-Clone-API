@@ -9,4 +9,6 @@ public interface HashtagService {
   List<HashtagDto> getAllHashtags();
 
   List<TweetResponseDto> getTweetsByHashtagLabel(String label);
+
+  boolean hashtagExists(String label);
 }
