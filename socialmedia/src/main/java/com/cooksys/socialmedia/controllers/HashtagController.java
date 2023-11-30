@@ -3,12 +3,11 @@ package com.cooksys.socialmedia.controllers;
 import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.services.HashtagService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -27,5 +26,10 @@ public class HashtagController {
   @GetMapping("/{label}")
   public List<TweetResponseDto> getTweetsByHashtagLabel(@PathVariable String label) {
     return hashtagService.getTweetsByHashtagLabel(label);
+  }
+
+  @GetMapping("/exists/{label}")
+  public boolean hashtagExists(@PathVariable String label) {
+    return hashtagService.hashtagExists(label);
   }
 }
