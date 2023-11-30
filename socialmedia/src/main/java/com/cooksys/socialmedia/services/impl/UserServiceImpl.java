@@ -9,6 +9,8 @@ import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.UserRepository;
 import com.cooksys.socialmedia.services.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +30,4 @@ public class UserServiceImpl implements UserService{
 		 
 		
 	}
-
-
-	
-	
-	
-	
-	
 }

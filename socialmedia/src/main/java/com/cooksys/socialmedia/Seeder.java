@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.cooksys.socialmedia.entities.Credential;
+import com.cooksys.socialmedia.entities.Credentials;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Profile;
 import com.cooksys.socialmedia.entities.Tweet;
@@ -30,12 +30,12 @@ public class Seeder implements CommandLineRunner {
 
         // --- User 1 ---
         // Credentials
-        Credential user1Cred = new Credential();
+        Credentials user1Cred = new Credentials();
         user1Cred.setUsername("therealmc");
         user1Cred.setPassword("Password");
 
         User user1 = new User();
-        user1.setCredential(user1Cred);
+        user1.setCredentials(user1Cred);
 
         // Profile
         Profile user1Pro = new Profile();
@@ -50,12 +50,12 @@ public class Seeder implements CommandLineRunner {
 
         // --- User 2 ---
         // Credentials
-        Credential user2Cred = new Credential();
+        Credentials user2Cred = new Credentials();
         user2Cred.setUsername("mario");
         user2Cred.setPassword("password");
 
         User user2 = new User();
-        user2.setCredential(user2Cred);
+        user2.setCredentials(user2Cred);
 
         // Profile
         Profile user2Pro = new Profile();
@@ -67,13 +67,13 @@ public class Seeder implements CommandLineRunner {
         // Deleted
         user2.setDeleted(false);
         // --- User 3 ---
-        Credential user3Cred = new Credential();
+        Credentials user3Cred = new Credentials();
         // Credentials
         user3Cred.setUsername("Luigi");
         user3Cred.setPassword("Password");
 
         User user3 = new User();
-        user3.setCredential(user3Cred);
+        user3.setCredentials(user3Cred);
 
         // Profile
         Profile user3Pro = new Profile();
@@ -87,12 +87,12 @@ public class Seeder implements CommandLineRunner {
 
         // --- User 4 ---
         // Credentials
-        Credential user4Cred = new Credential();
+        Credentials user4Cred = new Credentials();
         user4Cred.setUsername("Nathan");
         user4Cred.setPassword("Password");
 
         User user4 = new User();
-        user4.setCredential(user4Cred);
+        user4.setCredentials(user4Cred);
 
         // Profile
         Profile user4Pro = new Profile();
@@ -106,12 +106,12 @@ public class Seeder implements CommandLineRunner {
 
         // --- User 5 ---
         // Credentials
-        Credential user5Cred = new Credential();
+        Credentials user5Cred = new Credentials();
         user5Cred.setUsername("Tarnished");
         user5Cred.setPassword("Password");
 
         User user5 = new User();
-        user5.setCredential(user5Cred);
+        user5.setCredentials(user5Cred);
 
         // Profile
         Profile user5Pro = new Profile();
@@ -125,12 +125,12 @@ public class Seeder implements CommandLineRunner {
 
         // --- User 6 ---
         // Credentials
-        Credential deletedUserCred = new Credential();
+        Credentials deletedUserCred = new Credentials();
         deletedUserCred.setUsername("DeletedUser");
         deletedUserCred.setPassword("Password");
 
         User deletedUser = new User();
-        deletedUser.setCredential(deletedUserCred);
+        deletedUser.setCredentials(deletedUserCred);
 
         // Profile
         Profile deletedUserPro = new Profile();
