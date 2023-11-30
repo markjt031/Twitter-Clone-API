@@ -8,7 +8,9 @@ import java.util.List;
 
 @Repository
 public interface TweetRepository extends JpaRepository<Tweet, Long> {
-  
+
+  Tweet findByIdAndDeletedFalse(Long id);
+
   List<Tweet> findAllByContentContainingAndDeletedFalseOrderByPostedDesc(String content);
 
 }
