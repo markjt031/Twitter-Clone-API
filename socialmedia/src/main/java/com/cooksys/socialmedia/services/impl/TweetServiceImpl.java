@@ -1,5 +1,13 @@
 package com.cooksys.socialmedia.services.impl;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
 import com.cooksys.socialmedia.dtos.ContextDto;
 import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
@@ -9,11 +17,8 @@ import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.services.TweetService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -125,6 +130,19 @@ public List<TweetResponseDto> getAllTweets() {
     }
 
     return result;
+}
+
+
+//returns an existing tweet by its id
+@Override
+public TweetResponseDto getTweetById(Long id) {
+	Tweet tweet = getTweet(id);
+	
+	if (tweet == null || tweet.isDeleted()) {
+	      throw new NotFoundException("Tweet not found");
+	    }
+	
+	return tweetMapper.entityToDto(tweet);
 }
   
 }
