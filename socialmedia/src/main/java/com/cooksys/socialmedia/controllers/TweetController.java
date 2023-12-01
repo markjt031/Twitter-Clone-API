@@ -3,6 +3,7 @@ package com.cooksys.socialmedia.controllers;
 import com.cooksys.socialmedia.dtos.ContextDto;
 import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.services.TweetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,16 @@ public class TweetController {
   @GetMapping("/{id}/reposts")
   public List<TweetResponseDto> getReposts(@PathVariable Long id) {
     return tweetService.getReposts(id);
+  }
+  
+  @GetMapping("/{id}/likes")
+  public List<UserResponseDto> getLikes(@PathVariable Long id){
+	  return tweetService.getLikes(id);
+  }
+  
+  @GetMapping("/{id}/mentions")
+  public List<UserResponseDto> getMentions(@PathVariable Long id){
+	  return tweetService.getMentions(id);
   }
 
 }
