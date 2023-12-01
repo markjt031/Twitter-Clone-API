@@ -53,9 +53,9 @@ public class UserServiceImpl implements UserService{
 			throw new BadRequestException("include all required fields");
 		}
 		User userToCreate = userMapper.requestDtoToEntity(userRequestDto);
-		Optional<User> optionalUser = userRepository.findByCredentialsUsername(userToCreate.getCredentials().getUsername());
-		if (optionalUser.isPresent()) {
-			User foundUser=optionalUser.get();
+		String username= userToCreate.getCredentials().getUsername();
+		if (checkExisting(username)) {
+			User foundUser=getUser(username);
 			if (foundUser.isDeleted()==true) {
 				foundUser.setDeleted(false);
 				return userMapper.entityToDto(userRepository.saveAndFlush(foundUser));
@@ -68,38 +68,32 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public List<TweetResponseDto> getFeed(String username) {
-		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
-		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
-			throw new NotFoundException("user not found");
-		}
 		//creating list of usernames(user and all follows) to pass into derived query
-		User user = optionalUser.get();
+		User user = getUser(username);
 		Set<String> usernames = new HashSet<String>();
 		usernames.add(user.getCredentials().getUsername());
 		for (User following : user.getFollowing()) {
 			usernames.add(following.getCredentials().getUsername());
 		}
-//		
+		
 		return tweetMapper.entitiesToDtos(tweetRepository.findAllByDeletedFalseAndAuthorCredentialsUsernameInOrderByPostedDesc(usernames));
 	}
 
 
 	@Override
 	public List<TweetResponseDto> getMentions(String username) {
-		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
-		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
-			throw new NotFoundException("user not found");
-		}
-		List<Tweet> tweets = tweetRepository.findAllByContentNotNullAndDeletedFalseOrderByPostedDesc();
 		List<Tweet> mentions = new ArrayList<>();
-		for (Tweet t : tweets) {
+		if (checkExisting(username)) {
+			List<Tweet> tweets = tweetRepository.findAllByContentNotNullAndDeletedFalseOrderByPostedDesc();
 			
-			for (User u: t.getMentions()) {
-				System.out.println(u.getCredentials().getUsername());
-				if (u.getCredentials().getUsername()==optionalUser.get().getCredentials().getUsername()) {
-					mentions.add(t);
+			for (Tweet t : tweets) {
+				
+				for (User u: t.getMentions()) {
+					if (u.getCredentials().getUsername().equals(username)) {
+						mentions.add(t);
+					}
+				
 				}
-			
 			}
 		}
 		return tweetMapper.entitiesToDtos(mentions);
@@ -108,11 +102,7 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public List<UserResponseDto> getFollowing(String username) {
-		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
-		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
-			throw new NotFoundException("user not found");
-		}
-		User user = optionalUser.get();
+		User user = getUser(username);
 		List<User> allFollowing= user.getFollowing();
 		List<User> activeUsersFollowing = new ArrayList<>();
 		for (User u: allFollowing) {
@@ -121,5 +111,21 @@ public class UserServiceImpl implements UserService{
 			}
 		}
 		return userMapper.entitiesToDtos(activeUsersFollowing);
+	}
+	
+	public User getUser(String username) {
+		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
+		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
+			throw new NotFoundException("user not found");
+		}
+		else return optionalUser.get();
+	}
+	
+	public boolean checkExisting(String username) {
+		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
+		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
+			throw new NotFoundException("user not found");
+		}
+		return true;
 	}
 }
