@@ -4,6 +4,7 @@ import com.cooksys.socialmedia.dtos.*;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
+import com.cooksys.socialmedia.exceptions.BadRequestException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
@@ -40,6 +41,25 @@ public class TweetServiceImpl implements TweetService {
     }
 
     return optionalTweet.get();
+  }
+
+  private boolean validateTweetRequest(TweetRequestDto tweetRequestDto) {
+    if (tweetRequestDto == null) {
+      return false;
+    }
+    if (tweetRequestDto.getContent() == null) {
+      return false;
+    }
+    if (tweetRequestDto.getCredentials() == null) {
+      return false;
+    }
+    if (tweetRequestDto.getCredentials().getUsername() == null) {
+      return false;
+    }
+    if (tweetRequestDto.getCredentials().getPassword() == null) {
+      return false;
+    }
+    return true;
   }
 
   private List<Tweet> getBeforeInReplyToChain(Tweet tweet) {
@@ -194,6 +214,10 @@ public class TweetServiceImpl implements TweetService {
   @Override
   public TweetResponseDto createReply(Long id, TweetRequestDto tweetRequestDto) {
     Tweet tweet = getTweet(id);
+
+    if (!validateTweetRequest(tweetRequestDto)) {
+      throw new BadRequestException("Tweet request is not valid");
+    }
 
     Optional<User> optionalReplyAuthor = userRepository.findByCredentialsUsernameIgnoreCase(tweetRequestDto.getCredentials().getUsername());
     if (optionalReplyAuthor.isEmpty()) {
