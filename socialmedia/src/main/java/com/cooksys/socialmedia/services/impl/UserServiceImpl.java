@@ -90,10 +90,12 @@ public class UserServiceImpl implements UserService{
 		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
 			throw new NotFoundException("user not found");
 		}
-		List<Tweet> tweets = tweetRepository.findAllByContentContainingAndDeletedFalseOrderByPostedDesc(username);
+		List<Tweet> tweets = tweetRepository.findAllByContentNotNullAndDeletedFalseOrderByPostedDesc();
 		List<Tweet> mentions = new ArrayList<>();
 		for (Tweet t : tweets) {
+			
 			for (User u: t.getMentions()) {
+				System.out.println(u.getCredentials().getUsername());
 				if (u.getCredentials().getUsername()==optionalUser.get().getCredentials().getUsername()) {
 					mentions.add(t);
 				}
