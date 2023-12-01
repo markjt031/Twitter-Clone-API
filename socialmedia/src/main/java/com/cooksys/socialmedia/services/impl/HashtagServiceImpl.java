@@ -43,7 +43,7 @@ public class HashtagServiceImpl implements HashtagService {
 
   @Override
   public boolean hashtagExists(String label) {
-    return hashtagRepository.findByLabel(prependHashtag(label)) != null;
+    return hashtagRepository.findByLabel(prependHashtag(label)).isPresent();
   }
 
 }

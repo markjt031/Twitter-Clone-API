@@ -24,7 +24,14 @@ public class TweetServiceImpl implements TweetService {
   private final HashtagMapper hashtagMapper;
 
   private Tweet getTweet(Long id) {
-    return tweetRepository.findByIdAndDeletedFalse(id);
+//    return tweetRepository.findByIdAndDeletedFalse(id);
+    Optional<Tweet> optionalTweet = tweetRepository.findByIdAndDeletedFalse(id);
+
+    if (optionalTweet.isEmpty()) {
+      throw new NotFoundException("Tweet with id " + id + " does not exist");
+    }
+
+    return optionalTweet.get();
   }
 
   private List<Tweet> getBeforeInReplyToChain(Tweet tweet) {
@@ -55,11 +62,6 @@ public class TweetServiceImpl implements TweetService {
   @Override
   public List<HashtagDto> getTags(Long id) {
     Tweet tweet = getTweet(id);
-
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
-
     return hashtagMapper.entitiesToDtos(tweet.getHashtags());
   }
 
@@ -67,13 +69,10 @@ public class TweetServiceImpl implements TweetService {
   public ContextDto getContext(Long id) {
     Tweet tweet = getTweet(id);
 
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
-
     List<Tweet> before = getBeforeInReplyToChain(tweet);
     before.sort(Comparator.comparing(Tweet::getPosted));
     before.removeIf(Tweet::isDeleted);
+
     List<Tweet> after = new ArrayList<>(getAfterInReplyToChain(tweet));
     after.sort(Comparator.comparing(Tweet::getPosted));
     after.removeIf(Tweet::isDeleted);
@@ -85,10 +84,6 @@ public class TweetServiceImpl implements TweetService {
   public List<TweetResponseDto> getReplies(Long id) {
     Tweet tweet = getTweet(id);
 
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
-
     List<Tweet> replies = tweet.getReplies();
     replies.sort(Comparator.comparing(Tweet::getPosted));
     replies.removeIf(Tweet::isDeleted);
@@ -99,10 +94,6 @@ public class TweetServiceImpl implements TweetService {
   @Override
   public List<TweetResponseDto> getReposts(Long id) {
     Tweet tweet = getTweet(id);
-
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
 
     List<Tweet> reposts = tweet.getReposts();
     reposts.sort(Comparator.comparing(Tweet::getPosted));
