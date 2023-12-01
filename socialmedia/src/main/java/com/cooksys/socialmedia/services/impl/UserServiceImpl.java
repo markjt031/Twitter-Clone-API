@@ -147,9 +147,25 @@ public class UserServiceImpl implements UserService{
 			followedUser.getFollowers().add(followingUser);
 			userRepository.saveAllAndFlush(Arrays.asList(followedUser, followingUser));
 		}
+		else throw new NotFoundException("user requested to follow does not exist");
 		
 	}
 
+	@Override
+	public void unfollow(CredentialsDto credentials, String username) {
+		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentials);
+		if (checkCredentials(userCredentials) && checkExisting(username)) {
+			User followingUser = getUser(userCredentials.getUsername());
+			User unfollowedUser = getUser(username);
+			if (followingUser.getFollowing().contains(unfollowedUser)==false && unfollowedUser.getFollowers().contains(unfollowedUser)==false) {
+				throw new BadRequestException("following relationship does not exist");
+			}
+			followingUser.getFollowing().remove(unfollowedUser);
+			unfollowedUser.getFollowers().remove(followingUser);
+			userRepository.saveAllAndFlush(Arrays.asList(unfollowedUser, followingUser));
+		}
+		else throw new NotFoundException("user to unfollow does not exist");
+	}
 	
 	public User getUser(String username) {
 		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
@@ -174,6 +190,9 @@ public class UserServiceImpl implements UserService{
 		}
 		return true;
 	}
+
+
+	
 	
 
 }
