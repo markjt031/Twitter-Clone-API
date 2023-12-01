@@ -11,6 +11,8 @@ public interface UserService {
 	List<UserResponseDto> getAllUsers();
 
 	UserResponseDto createUser(UserRequestDto userRequestDto);
+
+	UserResponseDto getUserByName(String username);
 	
 	
 }
