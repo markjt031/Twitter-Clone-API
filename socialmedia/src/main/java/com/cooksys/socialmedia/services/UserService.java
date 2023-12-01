@@ -14,6 +14,8 @@ public interface UserService {
 	UserResponseDto createUser(UserRequestDto userRequestDto);
 
 	List<TweetResponseDto> getFeed(String username);
+
+	List<TweetResponseDto> getMentions(String username);
 	
 	
 }

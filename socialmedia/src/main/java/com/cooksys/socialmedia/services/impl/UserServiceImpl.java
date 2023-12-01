@@ -1,5 +1,6 @@
 package com.cooksys.socialmedia.services.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -80,5 +81,25 @@ public class UserServiceImpl implements UserService{
 		}
 //		
 		return tweetMapper.entitiesToDtos(tweetRepository.findAllByDeletedFalseAndAuthorCredentialsUsernameInOrderByPostedDesc(usernames));
+	}
+
+
+	@Override
+	public List<TweetResponseDto> getMentions(String username) {
+		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
+		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
+			throw new NotFoundException("user not found");
+		}
+		List<Tweet> tweets = tweetRepository.findAllByContentContainingAndDeletedFalseOrderByPostedDesc(username);
+		List<Tweet> mentions = new ArrayList<>();
+		for (Tweet t : tweets) {
+			for (User u: t.getMentions()) {
+				if (u.getCredentials().getUsername()==optionalUser.get().getCredentials().getUsername()) {
+					mentions.add(t);
+				}
+			
+			}
+		}
+		return tweetMapper.entitiesToDtos(mentions);
 	}
 }
