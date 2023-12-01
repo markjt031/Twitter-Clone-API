@@ -95,4 +95,19 @@ public class TweetServiceImpl implements TweetService {
 
     return tweetMapper.entitiesToDtos(replies);
   }
+
+  @Override
+  public List<TweetResponseDto> getReposts(Long id) {
+    Tweet tweet = getTweet(id);
+
+    if (tweet == null) {
+      throw new NotFoundException("Tweet with id " + id + " does not exist");
+    }
+
+    List<Tweet> reposts = tweet.getReposts();
+    reposts.sort(Comparator.comparing(Tweet::getPosted));
+    reposts.removeIf(Tweet::isDeleted);
+
+    return tweetMapper.entitiesToDtos(reposts);
+  }
 }
