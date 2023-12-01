@@ -1,5 +1,6 @@
 package com.cooksys.socialmedia.controllers;
 
+import com.cooksys.socialmedia.dtos.ContextDto;
 import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.services.TweetService;
 import lombok.RequiredArgsConstructor;
@@ -21,4 +22,10 @@ public class TweetController {
   public List<HashtagDto> getTags(@PathVariable Long id) {
     return tweetService.getTags(id);
   }
+
+  @GetMapping("/{id}/context")
+  public ContextDto getContext(@PathVariable Long id) {
+    return tweetService.getContext(id);
+  }
+
 }
