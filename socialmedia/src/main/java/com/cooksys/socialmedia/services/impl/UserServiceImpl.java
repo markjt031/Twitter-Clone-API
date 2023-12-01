@@ -19,6 +19,7 @@ import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
+import com.cooksys.socialmedia.services.USerResponseDto;
 import com.cooksys.socialmedia.services.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -112,6 +113,19 @@ public class UserServiceImpl implements UserService{
 		}
 		return userMapper.entitiesToDtos(activeUsersFollowing);
 	}
+
+	@Override
+	public List<UserResponseDto> getFollowers(String username) {
+		User user = getUser(username);
+		List<User> allFollowers= user.getFollowers();
+		List<User> activeUserFollowers = new ArrayList<>();
+		for (User u: allFollowers) {
+			if (u.isDeleted()==false) {
+				activeUserFollowers.add(u);
+			}
+		}
+		return userMapper.entitiesToDtos(activeUserFollowers);
+	}
 	
 	public User getUser(String username) {
 		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
@@ -128,4 +142,6 @@ public class UserServiceImpl implements UserService{
 		}
 		return true;
 	}
+
+
 }
