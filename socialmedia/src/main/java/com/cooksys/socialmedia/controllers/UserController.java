@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
 import com.cooksys.socialmedia.dtos.UserResponseDto;
+
 import com.cooksys.socialmedia.services.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -51,5 +53,10 @@ public class UserController {
 	@GetMapping("/@{username}/followers")
 	public List<UserResponseDto> getFollowers(@PathVariable String username){
 		return userService.getFollowers(username);
+	}
+	
+	@PostMapping("/@{username}/follow")
+	public void follow(@RequestBody CredentialsDto credentials, @PathVariable String username) {
+		userService.follow(credentials, username);
 	}
 }
