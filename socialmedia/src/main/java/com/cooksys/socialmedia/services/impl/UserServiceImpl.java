@@ -1,6 +1,7 @@
 package com.cooksys.socialmedia.services.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -8,13 +9,17 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
+import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
 import com.cooksys.socialmedia.dtos.UserResponseDto;
+import com.cooksys.socialmedia.entities.Credentials;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.BadRequestException;
+import com.cooksys.socialmedia.exceptions.NotAuthorizedException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
+import com.cooksys.socialmedia.mappers.CredentialsMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
@@ -37,6 +42,7 @@ public class UserServiceImpl implements UserService{
 	private final TweetRepository tweetRepository;
 	private final UserMapper userMapper;
 	private final TweetMapper tweetMapper;
+	private final CredentialsMapper credentialsMapper;
 	
 	
 	@Override
@@ -95,7 +101,9 @@ public class UserServiceImpl implements UserService{
 				
 				}
 			}
+			
 		}
+		else throw new NotFoundException("user not found");
 		return tweetMapper.entitiesToDtos(mentions);
 	}
 
@@ -112,6 +120,36 @@ public class UserServiceImpl implements UserService{
 		}
 		return userMapper.entitiesToDtos(activeUsersFollowing);
 	}
+
+	@Override
+	public List<UserResponseDto> getFollowers(String username) {
+		User user = getUser(username);
+		List<User> allFollowers= user.getFollowers();
+		List<User> activeUserFollowers = new ArrayList<>();
+		for (User u: allFollowers) {
+			if (u.isDeleted()==false) {
+				activeUserFollowers.add(u);
+			}
+		}
+		return userMapper.entitiesToDtos(activeUserFollowers);
+	}
+	
+	@Override
+	public void follow(CredentialsDto credentials, String username) {
+		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentials);
+		if (checkCredentials(userCredentials) && checkExisting(username)) {
+			User followingUser = getUser(userCredentials.getUsername());
+			User followedUser = getUser(username);
+			if (followingUser.getFollowing().contains(followedUser) && followedUser.getFollowers().contains(followingUser)) {
+				throw new BadRequestException("following relationship already exists");
+			}
+			followingUser.getFollowing().add(followedUser);
+			followedUser.getFollowers().add(followingUser);
+			userRepository.saveAllAndFlush(Arrays.asList(followedUser, followingUser));
+		}
+		
+	}
+
 	
 	public User getUser(String username) {
 		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
@@ -124,8 +162,18 @@ public class UserServiceImpl implements UserService{
 	public boolean checkExisting(String username) {
 		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
 		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
-			throw new NotFoundException("user not found");
+			return false;
 		}
 		return true;
 	}
+
+	public boolean checkCredentials(Credentials credentials) {
+		Optional<User> optionalUser = userRepository.findByCredentials(credentials);
+		if (credentials == null || optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
+			throw new NotAuthorizedException("credentials do not match existing user");
+		}
+		return true;
+	}
+	
+
 }
