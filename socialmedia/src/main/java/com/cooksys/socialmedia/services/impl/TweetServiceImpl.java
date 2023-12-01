@@ -2,6 +2,7 @@ package com.cooksys.socialmedia.services.impl;
 
 import com.cooksys.socialmedia.dtos.ContextDto;
 import com.cooksys.socialmedia.dtos.HashtagDto;
+import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
@@ -78,5 +79,20 @@ public class TweetServiceImpl implements TweetService {
     after.removeIf(Tweet::isDeleted);
 
     return tweetMapper.entityToContextDto(tweet, before, after);
+  }
+
+  @Override
+  public List<TweetResponseDto> getReplies(Long id) {
+    Tweet tweet = getTweet(id);
+
+    if (tweet == null) {
+      throw new NotFoundException("Tweet with id " + id + " does not exist");
+    }
+
+    List<Tweet> replies = tweet.getReplies();
+    replies.sort(Comparator.comparing(Tweet::getPosted));
+    replies.removeIf(Tweet::isDeleted);
+
+    return tweetMapper.entitiesToDtos(replies);
   }
 }
