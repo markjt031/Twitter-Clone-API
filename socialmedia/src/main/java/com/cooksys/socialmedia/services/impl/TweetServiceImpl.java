@@ -17,6 +17,7 @@ import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserResponseDto;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
+import com.cooksys.socialmedia.exceptions.BadRequestException;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
@@ -129,7 +130,9 @@ public class TweetServiceImpl implements TweetService {
 	
 	//Helper method for finding @mentions from text
 	public Set<String> findMentions(String tweetContent) {
-
+		if (tweetContent == null) {
+			return null;
+		}
 		String mentionRegex = "@\\w+";
 		Pattern pattern = Pattern.compile(mentionRegex);
 		Matcher matcher = pattern.matcher(tweetContent);
@@ -137,7 +140,9 @@ public class TweetServiceImpl implements TweetService {
 		// Find mentions
 		while (matcher.find()) {
 			String mention = matcher.group();
-			mentions.add(mention);
+			if (mention!=null) {
+				mentions.add(mention);
+			}
 		}
 		return mentions;
 	}
