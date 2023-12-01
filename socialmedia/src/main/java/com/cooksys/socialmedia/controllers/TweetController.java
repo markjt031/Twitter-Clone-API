@@ -38,5 +38,11 @@ public class TweetController {
   public List<TweetResponseDto> getReposts(@PathVariable Long id) {
     return tweetService.getReposts(id);
   }
+  
+  //returns all non deleted tweets
+  @GetMapping
+  public List<TweetResponseDto> getAllTweets(){
+	  return tweetService.getAllTweets();
+  }
 
 }

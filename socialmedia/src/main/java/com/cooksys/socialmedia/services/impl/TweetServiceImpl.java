@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -110,4 +111,20 @@ public class TweetServiceImpl implements TweetService {
 
     return tweetMapper.entitiesToDtos(reposts);
   }
+
+//returns all non deleted tweets
+@Override
+public List<TweetResponseDto> getAllTweets() {
+	List<Tweet> allTweets = tweetRepository.findAll();
+    List<TweetResponseDto> result = new ArrayList<>();
+
+    for (Tweet tweet : allTweets) {
+        if (!tweet.isDeleted()) {
+            result.add(tweetMapper.entityToDto(tweet));
+        }
+    }
+
+    return result;
+}
+  
 }
