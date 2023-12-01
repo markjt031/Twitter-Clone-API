@@ -44,5 +44,10 @@ public class TweetController {
   public List<UserResponseDto> getLikes(@PathVariable Long id){
 	  return tweetService.getLikes(id);
   }
+  
+  @GetMapping("/{id}/mentions")
+  public List<UserResponseDto> getMentions(@PathVariable Long id){
+	  return tweetService.getMentions(id);
+  }
 
 }

@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -123,5 +125,33 @@ public class TweetServiceImpl implements TweetService {
 			}
 		}
 		return userMapper.entitiesToDtos(likes);
+	}
+	
+	//Helper method for finding @mentions from text
+	public Set<String> findMentions(String tweetContent) {
+
+		String mentionRegex = "@\\w+";
+		Pattern pattern = Pattern.compile(mentionRegex);
+		Matcher matcher = pattern.matcher(tweetContent);
+		Set<String> mentions = new HashSet<>();
+		// Find mentions
+		while (matcher.find()) {
+			String mention = matcher.group();
+			mentions.add(mention);
+		}
+		return mentions;
+	}
+
+	@Override
+	public List<UserResponseDto> getMentions(Long id) {
+		Tweet tweet = getTweet(id);
+		List<User> mentionsIncludingDeleted = tweet.getMentions();
+		List<User> mentions = new ArrayList<User>();
+		for (User u: mentionsIncludingDeleted) {
+			if (u.isDeleted()==false) {
+				mentions.add(u);
+			}
+		}
+		return userMapper.entitiesToDtos(mentions);
 	}
 }
