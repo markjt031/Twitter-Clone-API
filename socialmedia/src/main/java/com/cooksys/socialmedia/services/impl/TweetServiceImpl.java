@@ -1,15 +1,13 @@
 package com.cooksys.socialmedia.services.impl;
 
-import com.cooksys.socialmedia.dtos.ContextDto;
-import com.cooksys.socialmedia.dtos.HashtagDto;
-import com.cooksys.socialmedia.dtos.TweetRequestDto;
-import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.dtos.*;
 import com.cooksys.socialmedia.entities.Hashtag;
 import com.cooksys.socialmedia.entities.Tweet;
 import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
+import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.HashtagRepository;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
@@ -18,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +27,7 @@ public class TweetServiceImpl implements TweetService {
   private final TweetMapper tweetMapper;
 
   private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
   private final HashtagMapper hashtagMapper;
   private final HashtagRepository hashtagRepository;
@@ -144,6 +145,50 @@ public class TweetServiceImpl implements TweetService {
     reposts.removeIf(Tweet::isDeleted);
 
     return tweetMapper.entitiesToDtos(reposts);
+  }
+
+  @Override
+  public List<UserResponseDto> getLikes(Long id) {
+    Tweet tweet = getTweet(id);
+    List<User> likes = new ArrayList<>();
+    for (User u : tweet.getLikes()) {
+      if (u.isDeleted() == false) {
+        likes.add(u);
+      }
+    }
+    return userMapper.entitiesToDtos(likes);
+  }
+
+  //Helper method for finding @mentions from text
+  public Set<String> findMentions(String tweetContent) {
+    if (tweetContent == null) {
+      return null;
+    }
+    String mentionRegex = "@\\w+";
+    Pattern pattern = Pattern.compile(mentionRegex);
+    Matcher matcher = pattern.matcher(tweetContent);
+    Set<String> mentions = new HashSet<>();
+    // Find mentions
+    while (matcher.find()) {
+      String mention = matcher.group();
+      if (mention != null) {
+        mentions.add(mention);
+      }
+    }
+    return mentions;
+  }
+
+  @Override
+  public List<UserResponseDto> getMentions(Long id) {
+    Tweet tweet = getTweet(id);
+    List<User> mentionsIncludingDeleted = tweet.getMentions();
+    List<User> mentions = new ArrayList<User>();
+    for (User u : mentionsIncludingDeleted) {
+      if (u.isDeleted() == false) {
+        mentions.add(u);
+      }
+    }
+    return userMapper.entitiesToDtos(mentions);
   }
 
   @Override

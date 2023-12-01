@@ -74,8 +74,8 @@ public class User {
 	
 	//Creates the user_likes relational tables and creates a List of tweets this user likes
 	@ManyToMany
-	@JoinTable(name = "user_likes", joinColumns = { @JoinColumn(name = "tweet_id") }, inverseJoinColumns = {
-			@JoinColumn(name = "user_id") })
+	@JoinTable(name = "user_likes", joinColumns = { @JoinColumn(name = "user_id") }, inverseJoinColumns = {
+			@JoinColumn(name = "tweet_id") })
 	private List<Tweet> userLikes = new ArrayList<>();
 	
 	//Creates the user_mention relational table and creates a list of tweets where the user is mentioned
