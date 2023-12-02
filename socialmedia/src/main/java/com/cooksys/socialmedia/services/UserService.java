@@ -13,6 +13,8 @@ public interface UserService {
 	UserResponseDto createUser(UserRequestDto userRequestDto);
 
 	UserResponseDto getUserByName(String username);
+
+	UserResponseDto deleteUser(String username);
 	
 	
 }
