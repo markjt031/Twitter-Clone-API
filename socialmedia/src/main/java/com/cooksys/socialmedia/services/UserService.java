@@ -15,6 +15,8 @@ public interface UserService {
 	UserResponseDto getUserByName(String username);
 
 	UserResponseDto deleteUser(String username);
+
+	UserResponseDto updateUser(String username, UserRequestDto userRequestDto);
 	
 	
 }

@@ -57,16 +57,16 @@ public class UserServiceImpl implements UserService {
 	public UserResponseDto getUserByName(String username) {
 		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
 
-	    if (userOptional.isPresent()) {
-	        User foundUser = userOptional.get();
-	        if (foundUser == null || foundUser.isDeleted()) {
-	            throw new NotFoundException("User not found");
-	        }
+		if (userOptional.isPresent()) {
+			User foundUser = userOptional.get();
+			if (foundUser == null || foundUser.isDeleted()) {
+				throw new NotFoundException("User not found");
+			}
 
-	        return userMapper.entityToDto(foundUser);
-	    } else {
-	        throw new NotFoundException("User not found");
-	    }
+			return userMapper.entityToDto(foundUser);
+		} else {
+			throw new NotFoundException("User not found");
+		}
 	}
 
 	// deletes user by username
@@ -74,16 +74,35 @@ public class UserServiceImpl implements UserService {
 	public UserResponseDto deleteUser(String username) {
 		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
 
-	    if (userOptional.isPresent()) {
-	        User foundUser = userOptional.get();
-	        if (foundUser == null || foundUser.isDeleted()) {
-	            throw new NotFoundException("User not found");
-	        }
+		if (userOptional.isPresent()) {
+			User foundUser = userOptional.get();
+			if (foundUser == null || foundUser.isDeleted()) {
+				throw new NotFoundException("User not found");
+			}
 
-	        foundUser.setDeleted(true);
-	        return userMapper.entityToDto(userRepository.saveAndFlush(foundUser));
-	    } else {
-	        throw new NotFoundException("User not found");
-	    }
+			foundUser.setDeleted(true);
+			return userMapper.entityToDto(userRepository.saveAndFlush(foundUser));
+		} else {
+			throw new NotFoundException("User not found");
+		}
+	}
+
+	// updates user by username
+	@Override
+	public UserResponseDto updateUser(String username, UserRequestDto userRequestDto) {
+		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+
+		if (userOptional.isPresent()) {
+			User foundUser = userOptional.get();
+			if (foundUser == null || foundUser.isDeleted()) {
+				throw new NotFoundException("User not found");
+			}
+			User updatedUser = userMapper.requestDtoToEntity(userRequestDto);
+			foundUser.setProfile(updatedUser.getProfile());
+
+			return userMapper.entityToDto(userRepository.saveAndFlush(foundUser));
+		} else {
+			throw new NotFoundException("User not found");
+		}
 	}
 }
