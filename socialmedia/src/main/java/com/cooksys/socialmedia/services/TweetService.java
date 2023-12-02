@@ -19,4 +19,6 @@ public interface TweetService {
 	List<TweetResponseDto> getAllTweets();
 
 	TweetResponseDto getTweetById(Long id);
+
+	List<TweetResponseDto> getUserTweets(String username);
 }

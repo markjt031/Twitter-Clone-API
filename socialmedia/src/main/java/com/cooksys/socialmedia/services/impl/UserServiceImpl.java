@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
 		return userMapper.entityToDto(userRepository.saveAndFlush(userToCreate));
 	}
 
-	// gets an exisiting user by username
+	// gets an existing user by username
 	@Override
 	public UserResponseDto getUserByName(String username) {
 		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);

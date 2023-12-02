@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -12,10 +13,12 @@ import com.cooksys.socialmedia.dtos.ContextDto;
 import com.cooksys.socialmedia.dtos.HashtagDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.entities.Tweet;
+import com.cooksys.socialmedia.entities.User;
 import com.cooksys.socialmedia.exceptions.NotFoundException;
 import com.cooksys.socialmedia.mappers.HashtagMapper;
 import com.cooksys.socialmedia.mappers.TweetMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
+import com.cooksys.socialmedia.repositories.UserRepository;
 import com.cooksys.socialmedia.services.TweetService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,125 +27,152 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TweetServiceImpl implements TweetService {
 
-  private final TweetRepository tweetRepository;
-  private final TweetMapper tweetMapper;
+	private final TweetRepository tweetRepository;
+	private final TweetMapper tweetMapper;
 
-  private final HashtagMapper hashtagMapper;
+	private final UserRepository userRepository;
 
-  private Tweet getTweet(Long id) {
-    return tweetRepository.findByIdAndDeletedFalse(id);
-  }
+	private final HashtagMapper hashtagMapper;
 
-  private List<Tweet> getBeforeInReplyToChain(Tweet tweet) {
-    List<Tweet> chain = new ArrayList<>();
+	private Tweet getTweet(Long id) {
+		return tweetRepository.findByIdAndDeletedFalse(id);
+	}
 
-    while (tweet.getInReplyTo() != null) {
-      chain.add(tweet.getInReplyTo());
-      tweet = tweet.getInReplyTo();
-    }
+	private List<Tweet> getBeforeInReplyToChain(Tweet tweet) {
+		List<Tweet> chain = new ArrayList<>();
 
-    return chain;
-  }
+		while (tweet.getInReplyTo() != null) {
+			chain.add(tweet.getInReplyTo());
+			tweet = tweet.getInReplyTo();
+		}
 
-  private Set<Tweet> getAfterInReplyToChain(Tweet tweet) {
-    Set<Tweet> chain = new HashSet<>();
+		return chain;
+	}
 
-    // solve without recursion
-    if (tweet.getReplies() != null) {
-      for (Tweet reply : tweet.getReplies()) {
-        chain.add(reply);
-        chain.addAll(getAfterInReplyToChain(reply));
-      }
-    }
+	private Set<Tweet> getAfterInReplyToChain(Tweet tweet) {
+		Set<Tweet> chain = new HashSet<>();
 
-    return chain;
-  }
+		// solve without recursion
+		if (tweet.getReplies() != null) {
+			for (Tweet reply : tweet.getReplies()) {
+				chain.add(reply);
+				chain.addAll(getAfterInReplyToChain(reply));
+			}
+		}
 
-  @Override
-  public List<HashtagDto> getTags(Long id) {
-    Tweet tweet = getTweet(id);
+		return chain;
+	}
 
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
+	@Override
+	public List<HashtagDto> getTags(Long id) {
+		Tweet tweet = getTweet(id);
 
-    return hashtagMapper.entitiesToDtos(tweet.getHashtags());
-  }
+		if (tweet == null) {
+			throw new NotFoundException("Tweet with id " + id + " does not exist");
+		}
 
-  @Override
-  public ContextDto getContext(Long id) {
-    Tweet tweet = getTweet(id);
+		return hashtagMapper.entitiesToDtos(tweet.getHashtags());
+	}
 
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
+	@Override
+	public ContextDto getContext(Long id) {
+		Tweet tweet = getTweet(id);
 
-    List<Tweet> before = getBeforeInReplyToChain(tweet);
-    before.sort(Comparator.comparing(Tweet::getPosted));
-    before.removeIf(Tweet::isDeleted);
-    List<Tweet> after = new ArrayList<>(getAfterInReplyToChain(tweet));
-    after.sort(Comparator.comparing(Tweet::getPosted));
-    after.removeIf(Tweet::isDeleted);
+		if (tweet == null) {
+			throw new NotFoundException("Tweet with id " + id + " does not exist");
+		}
 
-    return tweetMapper.entityToContextDto(tweet, before, after);
-  }
+		List<Tweet> before = getBeforeInReplyToChain(tweet);
+		before.sort(Comparator.comparing(Tweet::getPosted));
+		before.removeIf(Tweet::isDeleted);
+		List<Tweet> after = new ArrayList<>(getAfterInReplyToChain(tweet));
+		after.sort(Comparator.comparing(Tweet::getPosted));
+		after.removeIf(Tweet::isDeleted);
 
-  @Override
-  public List<TweetResponseDto> getReplies(Long id) {
-    Tweet tweet = getTweet(id);
+		return tweetMapper.entityToContextDto(tweet, before, after);
+	}
 
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
+	@Override
+	public List<TweetResponseDto> getReplies(Long id) {
+		Tweet tweet = getTweet(id);
 
-    List<Tweet> replies = tweet.getReplies();
-    replies.sort(Comparator.comparing(Tweet::getPosted));
-    replies.removeIf(Tweet::isDeleted);
+		if (tweet == null) {
+			throw new NotFoundException("Tweet with id " + id + " does not exist");
+		}
 
-    return tweetMapper.entitiesToDtos(replies);
-  }
+		List<Tweet> replies = tweet.getReplies();
+		replies.sort(Comparator.comparing(Tweet::getPosted));
+		replies.removeIf(Tweet::isDeleted);
 
-  @Override
-  public List<TweetResponseDto> getReposts(Long id) {
-    Tweet tweet = getTweet(id);
+		return tweetMapper.entitiesToDtos(replies);
+	}
 
-    if (tweet == null) {
-      throw new NotFoundException("Tweet with id " + id + " does not exist");
-    }
+	@Override
+	public List<TweetResponseDto> getReposts(Long id) {
+		Tweet tweet = getTweet(id);
 
-    List<Tweet> reposts = tweet.getReposts();
-    reposts.sort(Comparator.comparing(Tweet::getPosted));
-    reposts.removeIf(Tweet::isDeleted);
+		if (tweet == null) {
+			throw new NotFoundException("Tweet with id " + id + " does not exist");
+		}
 
-    return tweetMapper.entitiesToDtos(reposts);
-  }
+		List<Tweet> reposts = tweet.getReposts();
+		reposts.sort(Comparator.comparing(Tweet::getPosted));
+		reposts.removeIf(Tweet::isDeleted);
+
+		return tweetMapper.entitiesToDtos(reposts);
+	}
 
 //returns all non deleted tweets
-@Override
-public List<TweetResponseDto> getAllTweets() {
-	List<Tweet> allTweets = tweetRepository.findAll();
-    List<TweetResponseDto> result = new ArrayList<>();
+	@Override
+	public List<TweetResponseDto> getAllTweets() {
+		List<Tweet> allTweets = tweetRepository.findAll();
+		List<TweetResponseDto> result = new ArrayList<>();
 
-    for (Tweet tweet : allTweets) {
-        if (!tweet.isDeleted()) {
-            result.add(tweetMapper.entityToDto(tweet));
-        }
-    }
+		for (Tweet tweet : allTweets) {
+			if (!tweet.isDeleted()) {
+				result.add(tweetMapper.entityToDto(tweet));
+			}
+		}
 
-    return result;
-}
-
+		return result;
+	}
 
 //returns an existing tweet by its id
-@Override
-public TweetResponseDto getTweetById(Long id) {
-	Tweet tweet = getTweet(id);
-	
-	if (tweet == null || tweet.isDeleted()) {
-	      throw new NotFoundException("Tweet not found");
+	@Override
+	public TweetResponseDto getTweetById(Long id) {
+		Tweet tweet = getTweet(id);
+
+		if (tweet == null || tweet.isDeleted()) {
+			throw new NotFoundException("Tweet not found");
+		}
+
+		return tweetMapper.entityToDto(tweet);
+	}
+
+//gets all the non deleted tweet by a user
+	@Override
+	public List<TweetResponseDto> getUserTweets(String username) {
+		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+
+	    if (userOptional.isPresent()) {
+	        User foundUser = userOptional.get();
+
+	        if (foundUser.isDeleted()) {
+	            throw new NotFoundException("User not found");
+	        }
+
+	        List<TweetResponseDto> result = new ArrayList<>();
+	        for (Tweet t : foundUser.getTweets()) {
+	            if (!t.isDeleted()) {
+	                result.add(tweetMapper.entityToDto(t));
+	            }
+	        }
+
+	        return result;
+
+	    } else {
+	        throw new NotFoundException("User not found");
 	    }
-	
-	return tweetMapper.entityToDto(tweet);
-}
-  
+	}
+
 }
