@@ -60,8 +60,8 @@ public class UserServiceImpl implements UserService{
 		}
 		User userToCreate = userMapper.requestDtoToEntity(userRequestDto);
 		String username= userToCreate.getCredentials().getUsername();
-		if (checkExisting(username)) {
-			User foundUser=getUser(username);
+		if (userRepository.findByCredentialsUsername(username).isPresent()) {
+			User foundUser=userRepository.findByCredentialsUsername(username).get();
 			if (foundUser.isDeleted()==true) {
 				foundUser.setDeleted(false);
 				return userMapper.entityToDto(userRepository.saveAndFlush(foundUser));
