@@ -92,4 +92,10 @@ public class TweetController {
 	public void likeTweet(@PathVariable Long id, @RequestBody CredentialsDto credentials) {
 		tweetService.likeTweet(id, credentials);
 	}
+	
+	//resposts a tweet
+	@PostMapping("{id}/repost")
+	public TweetResponseDto repostTweet(@PathVariable Long id, @RequestBody CredentialsDto credentials) {
+		return tweetService.repostTweet(id, credentials);
+	}
 }

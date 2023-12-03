@@ -37,4 +37,6 @@ public interface TweetService {
 
 	void likeTweet(Long id, CredentialsDto credentials);
 
+	TweetResponseDto repostTweet(Long id, CredentialsDto credentials);
+
 }

@@ -398,20 +398,41 @@ public class TweetServiceImpl implements TweetService {
 			throw new NotFoundException("Unable to create tweet");
 	}
 
-	//posts a like to a tweet
+	// posts a like to a tweet
 	@Override
 	public void likeTweet(Long id, CredentialsDto credentials) {
 		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentials);
 		if (checkCredentials(userCredentials)) {
 			Tweet tweet = getTweet(id);
 			Optional<User> user = userRepository.findByCredentials(userCredentials);
-			
+
 			User userLike = user.get();
-			
+
 			userLike.likeTweet(tweet);
-		     userRepository.saveAndFlush(userLike);
+			userRepository.saveAndFlush(userLike);
 		} else
 			throw new NotFoundException("tweet not found");
+	}
+
+	// resposts a tweet
+	@Override
+	public TweetResponseDto repostTweet(Long id, CredentialsDto credentials) {
+		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentials);
+		if (checkCredentials(userCredentials)) {
+			Tweet tweet = getTweet(id);
+			Optional<User> user = userRepository.findByCredentials(userCredentials);
+
+			User userRepost = user.get();
+
+			Tweet repostTweet = new Tweet();
+			repostTweet.setAuthor(userRepost);
+			repostTweet.setRepostOf(tweet);
+			
+			return tweetMapper.entityToDto(tweetRepository.saveAndFlush(repostTweet));
+
+		} else
+			throw new NotFoundException("tweet not found");
+
 	}
 
 }
