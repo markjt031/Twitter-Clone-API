@@ -33,4 +33,6 @@ public interface TweetService {
 
 	TweetResponseDto deleteTweetbyID(Long id, CredentialsDto credentaials);
 
+	TweetResponseDto createTweet(TweetRequestDto tweetRequestDto);
+
 }

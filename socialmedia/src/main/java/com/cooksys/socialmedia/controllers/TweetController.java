@@ -75,8 +75,15 @@ public class TweetController {
 		return tweetService.createReply(id, tweetRequestDto);
 	}
 
+	// deletes a tweet by its id
 	@DeleteMapping("{id}")
 	public TweetResponseDto deleteTweetByID(@PathVariable Long id, @RequestBody CredentialsDto credentaials) {
 		return tweetService.deleteTweetbyID(id, credentaials);
+	}
+
+	// creates a new tweet
+	@PostMapping
+	public TweetResponseDto createTweet(@RequestBody TweetRequestDto tweetRequestDto) {
+		return tweetService.createTweet(tweetRequestDto);
 	}
 }

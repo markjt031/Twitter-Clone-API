@@ -2,6 +2,7 @@ package com.cooksys.socialmedia.services.impl;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -223,6 +224,28 @@ public class TweetServiceImpl implements TweetService {
 		return mentions;
 	}
 
+	// Helper meythod to get hashtags from tweet content
+	public Set<String> findHashtags(String tweetContent) {
+		if (tweetContent == null) {
+			return null;
+		}
+
+		String hashtagRegex = "#\\w+";
+		Pattern pattern = Pattern.compile(hashtagRegex);
+		Matcher matcher = pattern.matcher(tweetContent);
+
+		Set<String> hashtags = new HashSet<>();
+
+		while (matcher.find()) {
+			String hashtag = matcher.group();
+			if (hashtag != null) {
+				hashtags.add(hashtag);
+			}
+		}
+
+		return hashtags;
+	}
+
 	@Override
 	public List<UserResponseDto> getMentions(Long id) {
 		Tweet tweet = getTweet(id);
@@ -318,15 +341,61 @@ public class TweetServiceImpl implements TweetService {
 		}
 	}
 
+	// deletes a tweet by its id
 	@Override
 	public TweetResponseDto deleteTweetbyID(Long id, CredentialsDto credentaials) {
 		Tweet tweet = getTweet(id);
 		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentaials);
-		if(checkCredentials(userCredentials)) {
+		if (checkCredentials(userCredentials)) {
 			tweet.setDeleted(true);
 			return tweetMapper.entityToDto(tweetRepository.saveAndFlush(tweet));
-		}
-		else throw new NotFoundException("tweet not found");
+		} else
+			throw new NotFoundException("tweet not found");
+	}
+
+	// creates a new tweet
+	@Override
+	public TweetResponseDto createTweet(TweetRequestDto tweetRequestDto) {
+		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(tweetRequestDto.getCredentials());
+		if (checkCredentials(userCredentials)) {
+			Optional<User> author = userRepository.findByCredentials(userCredentials);
+			Tweet tweet = tweetMapper.requestDtoToEntity(tweetRequestDto);
+
+			String content = tweet.getContent();
+
+			Set<String> mentions = findMentions(content);
+			Set<String> tagLabels = findHashtags(content);
+
+			tweet.setAuthor(author.get());
+
+			for (String tagLabel : tagLabels) {
+				Optional<Hashtag> hashtagOptional = hashtagRepository.findByLabel(tagLabel);
+				Hashtag hashtag;
+				if (hashtagOptional.isEmpty()) {
+					hashtag = new Hashtag();
+					hashtag.setLabel(tagLabel);
+				} else {
+					hashtag = hashtagOptional.get();
+				}
+				hashtag.setLastUsed(new Date(System.currentTimeMillis()));
+				hashtag = hashtagRepository.saveAndFlush(hashtag);
+				tweet.addHashtag(hashtag);
+			}
+
+			for (String username : mentions) {
+				Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+				if (userOptional.isEmpty()) {
+					return null;
+				}
+				User user = userOptional.get();
+
+				tweet.addMentionedUser(user);
+
+			}
+
+			return tweetMapper.entityToDto(tweetRepository.saveAndFlush(tweet));
+		} else
+			throw new NotFoundException("Unable to create tweet");
 	}
 
 }
