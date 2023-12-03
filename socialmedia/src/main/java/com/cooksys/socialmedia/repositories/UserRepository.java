@@ -13,6 +13,7 @@ import com.cooksys.socialmedia.entities.Credentials;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
   Optional<List<User>> findAllByDeletedFalse();
 
   Optional<User> findByCredentialsUsername(String username);
@@ -20,5 +21,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Optional<User> findByCredentials(Credentials credentials);
 
   Optional<User> findByCredentialsUsernameIgnoreCase(String username);
+
+
+	Optional<List<User>> findAllByDeletedFalse();
+	Optional<User> findByCredentialsUsername(String username);
+	
 
 }

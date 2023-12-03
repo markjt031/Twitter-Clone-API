@@ -1,15 +1,23 @@
 package com.cooksys.socialmedia.controllers;
 
-import com.cooksys.socialmedia.dtos.ContextDto;
-import com.cooksys.socialmedia.dtos.HashtagDto;
-import com.cooksys.socialmedia.dtos.TweetRequestDto;
-import com.cooksys.socialmedia.dtos.TweetResponseDto;
-import com.cooksys.socialmedia.dtos.UserResponseDto;
-import com.cooksys.socialmedia.services.TweetService;
-import lombok.RequiredArgsConstructor;
+
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+
+import com.cooksys.socialmedia.dtos.ContextDto;
+import com.cooksys.socialmedia.dtos.HashtagDto;
+import com.cooksys.socialmedia.dtos.TweetResponseDto;
+import com.cooksys.socialmedia.services.TweetService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +46,7 @@ public class TweetController {
     return tweetService.getReposts(id);
   }
   
+
   @GetMapping("/{id}/likes")
   public List<UserResponseDto> getLikes(@PathVariable Long id){
 	  return tweetService.getLikes(id);
@@ -45,7 +54,18 @@ public class TweetController {
   
   @GetMapping("/{id}/mentions")
   public List<UserResponseDto> getMentions(@PathVariable Long id){
-	  return tweetService.getMentions(id);
+  }
+  //returns all non deleted tweets
+  @GetMapping
+  public List<TweetResponseDto> getAllTweets(){
+	  return tweetService.getAllTweets();
+  }
+  
+  //returns an existing tweet by its id
+  @GetMapping("{id}")
+  public TweetResponseDto getTweetByID(@PathVariable Long id) {
+	  return tweetService.getTweetById(id);
+
   }
 
   @PostMapping("/{id}/reply")
