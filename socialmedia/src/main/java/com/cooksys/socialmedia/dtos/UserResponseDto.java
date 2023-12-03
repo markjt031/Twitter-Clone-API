@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class UserResponseDto {
 	private String username;
-	private Profile profile;
+	private ProfileDto profile;
 	private Date joined;
 }

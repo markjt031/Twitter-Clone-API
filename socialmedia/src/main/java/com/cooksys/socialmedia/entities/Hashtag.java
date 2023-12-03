@@ -1,6 +1,7 @@
 
 package com.cooksys.socialmedia.entities;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,9 +38,7 @@ public class Hashtag {
 	@CreationTimestamp
 	private Date firstUsed;
 
-	@Basic(optional = false)
-	@Column(insertable = false, updatable = false)
-	@Temporal(TemporalType.TIMESTAMP)
+	@UpdateTimestamp
 	private Date lastUsed;
 
 	@ManyToMany(mappedBy = "hashtags")
