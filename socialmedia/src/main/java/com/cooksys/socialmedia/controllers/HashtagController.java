@@ -27,14 +27,6 @@ public class HashtagController {
   public List<TweetResponseDto> getTweetsByHashtagLabel(@PathVariable String label) {
     return hashtagService.getTweetsByHashtagLabel(label);
   }
-
-  @GetMapping("/exists/{label}")
-  public boolean hashtagExists(@PathVariable String label) {
-    System.out.println(label);
-    boolean exists = hashtagService.hashtagExists(label);
-    System.out.println(exists);
-    return hashtagService.hashtagExists(label);
-  }
 }
 
 

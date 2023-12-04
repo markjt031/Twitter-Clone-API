@@ -4,4 +4,6 @@ public interface ValidateService {
   boolean usernameExists(String username);
 
   boolean usernameAvailable(String username);
+
+  boolean hashtagExists(String label);
 }
