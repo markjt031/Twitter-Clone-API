@@ -40,6 +40,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TweetServiceImpl implements TweetService {
 
+
 	private final TweetRepository tweetRepository;
 	private final TweetMapper tweetMapper;
 
