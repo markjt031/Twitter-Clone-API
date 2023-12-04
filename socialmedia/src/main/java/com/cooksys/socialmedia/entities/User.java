@@ -82,4 +82,8 @@ public class User {
 	@ManyToMany(mappedBy ="mentions")
 	private List<Tweet> userMentions = new ArrayList<>();
 	
+	public void likeTweet(Tweet tweet) {
+        this.userLikes.add(tweet);
+        tweet.getLikes().add(this);
+    }
 }

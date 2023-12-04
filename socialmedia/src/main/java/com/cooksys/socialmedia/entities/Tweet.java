@@ -63,4 +63,15 @@ public class Tweet {
   @JoinTable(name = "user_mentions", joinColumns = {@JoinColumn(name = "tweet_id")}, inverseJoinColumns = {
       @JoinColumn(name = "user_id")})
   private List<User> mentions = new ArrayList<>();
+  
+  //public methods to help process adding of user mentions and hastags when a new tweet is created
+  public void addMentionedUser(User user) {
+      this.mentions.add(user);
+      user.getUserMentions().add(this);
+  }
+  
+  public void addHashtag(Hashtag hashtag) {
+      this.hashtags.add(hashtag);
+      hashtag.getTweets().add(this);
+  }
 }
