@@ -127,6 +127,12 @@ public class TweetServiceImpl implements TweetService {
   @Override
   public List<HashtagDto> getTags(Long id) {
     Tweet tweet = getTweet(id);
+    List<Hashtag> hashtags = tweet.getHashtags();
+
+    for (Hashtag hashtag : hashtags) {
+      hashtag.setLabel(hashtag.getLabel().substring(1));
+    }
+
     return hashtagMapper.entitiesToDtos(tweet.getHashtags());
   }
 
