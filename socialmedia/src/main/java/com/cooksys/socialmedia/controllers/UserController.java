@@ -38,36 +38,35 @@ public class UserController {
 		return userService.createUser(userRequestDto);
 	}
 
-	
 	@GetMapping("/@{username}/feed")
-	public List<TweetResponseDto> getFeed(@PathVariable String username){
+	public List<TweetResponseDto> getFeed(@PathVariable String username) {
 		return userService.getFeed(username);
 	}
-	
+
 	@GetMapping("/@{username}/mentions")
-	public List<TweetResponseDto> getMentions(@PathVariable String username){
+	public List<TweetResponseDto> getMentions(@PathVariable String username) {
 		return userService.getMentions(username);
 	}
-	
+
 	@GetMapping("/@{username}/following")
-	public List<UserResponseDto> getFollowing(@PathVariable String username){
+	public List<UserResponseDto> getFollowing(@PathVariable String username) {
 		return userService.getFollowing(username);
 	}
-	
+
 	@GetMapping("/@{username}/followers")
-	public List<UserResponseDto> getFollowers(@PathVariable String username){
+	public List<UserResponseDto> getFollowers(@PathVariable String username) {
 		return userService.getFollowers(username);
 	}
-	
+
 	@PostMapping("/@{username}/follow")
 	public void follow(@RequestBody CredentialsDto credentials, @PathVariable String username) {
 		userService.follow(credentials, username);
 	}
-	
+
 	@PostMapping("/@{username}/unfollow")
 	public void unfollow(@RequestBody CredentialsDto credentials, @PathVariable String username) {
 		userService.unfollow(credentials, username);
-  }
+	}
 
 	// gets an exisiting user by username
 	@GetMapping("@{username}")
@@ -83,11 +82,11 @@ public class UserController {
 
 	// deletes user by username
 	@DeleteMapping("@{username}")
-	public UserResponseDto deleteUser(@PathVariable String username) {
-		return userService.deleteUser(username);
+	public UserResponseDto deleteUser(@PathVariable String username, @RequestBody CredentialsDto credentials) {
+		return userService.deleteUser(username, credentials);
 	}
 
-	//updates user by username
+	// updates user by username
 	@PatchMapping("@{username}")
 	public UserResponseDto updateUser(@PathVariable String username, @RequestBody UserRequestDto userRequestDto) {
 		return userService.updateUser(username, userRequestDto);

@@ -25,96 +25,89 @@ import com.cooksys.socialmedia.mappers.UserMapper;
 import com.cooksys.socialmedia.repositories.TweetRepository;
 import com.cooksys.socialmedia.repositories.UserRepository;
 import com.cooksys.socialmedia.services.UserService;
-import lombok.RequiredArgsConstructor;
 
-
-import org.springframework.stereotype.Service;
-
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 
-public class UserServiceImpl implements UserService{
-	
+public class UserServiceImpl implements UserService {
+
 	private final UserRepository userRepository;
 	private final TweetRepository tweetRepository;
 	private final UserMapper userMapper;
 	private final TweetMapper tweetMapper;
 	private final CredentialsMapper credentialsMapper;
-	
-	
+
 	@Override
 	public List<UserResponseDto> getAllUsers() {
 		return userMapper.entitiesToDtos(userRepository.findAllByDeletedFalse().get());
-		 
-	}
 
+	}
 
 	@Override
 	public UserResponseDto createUser(UserRequestDto userRequestDto) {
-		if (userRequestDto == null || userRequestDto.getCredentials()==null || userRequestDto.getCredentials().getUsername()==null
-				|| userRequestDto.getCredentials().getPassword()==null || userRequestDto.getProfile()== null || userRequestDto.getProfile().getEmail()==null) {
+		if (userRequestDto == null || userRequestDto.getCredentials() == null
+				|| userRequestDto.getCredentials().getUsername() == null
+				|| userRequestDto.getCredentials().getPassword() == null || userRequestDto.getProfile() == null
+				|| userRequestDto.getProfile().getEmail() == null) {
 			throw new BadRequestException("include all required fields");
 		}
 		User userToCreate = userMapper.requestDtoToEntity(userRequestDto);
-		String username= userToCreate.getCredentials().getUsername();
+		String username = userToCreate.getCredentials().getUsername();
 		if (checkExisting(username)) {
-			User foundUser=getUser(username);
-			if (foundUser.isDeleted()==true) {
+			User foundUser = getUser(username);
+			if (foundUser.isDeleted() == true) {
 				foundUser.setDeleted(false);
 				return userMapper.entityToDto(userRepository.saveAndFlush(foundUser));
-			}
-			else throw new BadRequestException("user already exists");
+			} else
+				throw new BadRequestException("user already exists");
 		}
 		return userMapper.entityToDto(userRepository.saveAndFlush(userToCreate));
 	}
 
-
 	@Override
 	public List<TweetResponseDto> getFeed(String username) {
-		//creating list of usernames(user and all follows) to pass into derived query
+		// creating list of usernames(user and all follows) to pass into derived query
 		User user = getUser(username);
 		Set<String> usernames = new HashSet<String>();
 		usernames.add(user.getCredentials().getUsername());
 		for (User following : user.getFollowing()) {
 			usernames.add(following.getCredentials().getUsername());
 		}
-		
-		return tweetMapper.entitiesToDtos(tweetRepository.findAllByDeletedFalseAndAuthorCredentialsUsernameInOrderByPostedDesc(usernames));
-	}
 
+		return tweetMapper.entitiesToDtos(
+				tweetRepository.findAllByDeletedFalseAndAuthorCredentialsUsernameInOrderByPostedDesc(usernames));
+	}
 
 	@Override
 	public List<TweetResponseDto> getMentions(String username) {
 		List<Tweet> mentions = new ArrayList<>();
 		if (checkExisting(username)) {
 			List<Tweet> tweets = tweetRepository.findAllByContentNotNullAndDeletedFalseOrderByPostedDesc();
-			
+
 			for (Tweet t : tweets) {
-				
-				for (User u: t.getMentions()) {
+
+				for (User u : t.getMentions()) {
 					if (u.getCredentials().getUsername().equals(username)) {
 						mentions.add(t);
 					}
-				
+
 				}
 			}
-			
-		}
-		else throw new NotFoundException("user not found");
+
+		} else
+			throw new NotFoundException("user not found");
 		return tweetMapper.entitiesToDtos(mentions);
 	}
-
 
 	@Override
 	public List<UserResponseDto> getFollowing(String username) {
 		User user = getUser(username);
-		List<User> allFollowing= user.getFollowing();
+		List<User> allFollowing = user.getFollowing();
 		List<User> activeUsersFollowing = new ArrayList<>();
-		for (User u: allFollowing) {
-			if (u.isDeleted()==false) {
+		for (User u : allFollowing) {
+			if (u.isDeleted() == false) {
 				activeUsersFollowing.add(u);
 			}
 		}
@@ -124,31 +117,32 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public List<UserResponseDto> getFollowers(String username) {
 		User user = getUser(username);
-		List<User> allFollowers= user.getFollowers();
+		List<User> allFollowers = user.getFollowers();
 		List<User> activeUserFollowers = new ArrayList<>();
-		for (User u: allFollowers) {
-			if (u.isDeleted()==false) {
+		for (User u : allFollowers) {
+			if (u.isDeleted() == false) {
 				activeUserFollowers.add(u);
 			}
 		}
 		return userMapper.entitiesToDtos(activeUserFollowers);
 	}
-	
+
 	@Override
 	public void follow(CredentialsDto credentials, String username) {
 		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentials);
 		if (checkCredentials(userCredentials) && checkExisting(username)) {
 			User followingUser = getUser(userCredentials.getUsername());
 			User followedUser = getUser(username);
-			if (followingUser.getFollowing().contains(followedUser) && followedUser.getFollowers().contains(followingUser)) {
+			if (followingUser.getFollowing().contains(followedUser)
+					&& followedUser.getFollowers().contains(followingUser)) {
 				throw new BadRequestException("following relationship already exists");
 			}
 			followingUser.getFollowing().add(followedUser);
 			followedUser.getFollowers().add(followingUser);
 			userRepository.saveAllAndFlush(Arrays.asList(followedUser, followingUser));
-		}
-		else throw new NotFoundException("user requested to follow does not exist");
-		
+		} else
+			throw new NotFoundException("user requested to follow does not exist");
+
 	}
 
 	@Override
@@ -157,24 +151,25 @@ public class UserServiceImpl implements UserService{
 		if (checkCredentials(userCredentials) && checkExisting(username)) {
 			User followingUser = getUser(userCredentials.getUsername());
 			User unfollowedUser = getUser(username);
-			if (followingUser.getFollowing().contains(unfollowedUser)==false && unfollowedUser.getFollowers().contains(unfollowedUser)==false) {
+			if (followingUser.getFollowing().contains(unfollowedUser) == false
+					&& unfollowedUser.getFollowers().contains(unfollowedUser) == false) {
 				throw new BadRequestException("following relationship does not exist");
 			}
 			followingUser.getFollowing().remove(unfollowedUser);
 			unfollowedUser.getFollowers().remove(followingUser);
 			userRepository.saveAllAndFlush(Arrays.asList(unfollowedUser, followingUser));
-		}
-		else throw new NotFoundException("user to unfollow does not exist");
+		} else
+			throw new NotFoundException("user to unfollow does not exist");
 	}
-	
+
 	public User getUser(String username) {
 		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
 		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
 			throw new NotFoundException("user not found");
-		}
-		else return optionalUser.get();
+		} else
+			return optionalUser.get();
 	}
-	
+
 	public boolean checkExisting(String username) {
 		Optional<User> optionalUser = userRepository.findByCredentialsUsername(username);
 		if (optionalUser.isEmpty() || optionalUser.get().isDeleted()) {
@@ -191,29 +186,30 @@ public class UserServiceImpl implements UserService{
 		return true;
 	}
 
-
 	// gets an existing user by username
-		@Override
-		public UserResponseDto getUserByName(String username) {
-			Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+	@Override
+	public UserResponseDto getUserByName(String username) {
+		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
 
-			if (userOptional.isPresent()) {
-				User foundUser = userOptional.get();
-				if (foundUser == null || foundUser.isDeleted()) {
-					throw new NotFoundException("User not found");
-				}
-
-				return userMapper.entityToDto(foundUser);
-			} else {
+		if (userOptional.isPresent()) {
+			User foundUser = userOptional.get();
+			if (foundUser == null || foundUser.isDeleted()) {
 				throw new NotFoundException("User not found");
 			}
+
+			return userMapper.entityToDto(foundUser);
+		} else {
+			throw new NotFoundException("User not found");
 		}
+	}
 
-		// deletes user by username
-		@Override
-		public UserResponseDto deleteUser(String username) {
-			Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+	// deletes user by username
+	@Override
+	public UserResponseDto deleteUser(String username, CredentialsDto credentials) {
+		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(credentials);
 
+		if (checkCredentials(userCredentials)) {
 			if (userOptional.isPresent()) {
 				User foundUser = userOptional.get();
 				if (foundUser == null || foundUser.isDeleted()) {
@@ -225,13 +221,21 @@ public class UserServiceImpl implements UserService{
 			} else {
 				throw new NotFoundException("User not found");
 			}
+
+		} else {
+			throw new NotFoundException("User not found");
+
 		}
 
-		// updates user by username
-		@Override
-		public UserResponseDto updateUser(String username, UserRequestDto userRequestDto) {
-			Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+	}
 
+	// updates user by username
+	@Override
+	public UserResponseDto updateUser(String username, UserRequestDto userRequestDto) {
+		Optional<User> userOptional = userRepository.findByCredentialsUsername(username);
+		Credentials userCredentials = credentialsMapper.credentialDtoToEntity(userRequestDto.getCredentials());
+
+		if (checkCredentials(userCredentials)) {
 			if (userOptional.isPresent()) {
 				User foundUser = userOptional.get();
 				if (foundUser == null || foundUser.isDeleted()) {
@@ -244,7 +248,11 @@ public class UserServiceImpl implements UserService{
 			} else {
 				throw new NotFoundException("User not found");
 			}
-		}
-	}
-	
 
+		} else {
+			throw new NotFoundException("User not found");
+
+		}
+
+	}
+}

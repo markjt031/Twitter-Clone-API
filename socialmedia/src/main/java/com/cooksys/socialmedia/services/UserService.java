@@ -6,15 +6,12 @@ import com.cooksys.socialmedia.dtos.CredentialsDto;
 import com.cooksys.socialmedia.dtos.TweetResponseDto;
 import com.cooksys.socialmedia.dtos.UserRequestDto;
 import com.cooksys.socialmedia.dtos.UserResponseDto;
-import com.cooksys.socialmedia.entities.Credentials;
-import com.cooksys.socialmedia.entities.User;
 
 public interface UserService {
 
 	List<UserResponseDto> getAllUsers();
 
 	UserResponseDto createUser(UserRequestDto userRequestDto);
-
 
 	List<TweetResponseDto> getFeed(String username);
 
@@ -30,10 +27,8 @@ public interface UserService {
 
 	UserResponseDto getUserByName(String username);
 
-	UserResponseDto deleteUser(String username);
+	UserResponseDto deleteUser(String username, CredentialsDto credentials);
 
 	UserResponseDto updateUser(String username, UserRequestDto userRequestDto);
 
-	
-	
 }
