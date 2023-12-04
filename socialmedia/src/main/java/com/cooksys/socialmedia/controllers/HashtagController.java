@@ -30,6 +30,11 @@ public class HashtagController {
 
   @GetMapping("/exists/{label}")
   public boolean hashtagExists(@PathVariable String label) {
+    System.out.println(label);
+    boolean exists = hashtagService.hashtagExists(label);
+    System.out.println(exists);
     return hashtagService.hashtagExists(label);
   }
 }
+
+
